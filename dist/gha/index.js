@@ -500,7 +500,7 @@ class GitCLIService {
      * @param branch branch which should be cloned
      */
     async clone(from, to, branch) {
-        this.logger.info(`Cloning repository ${from} to ${to}`);
+        this.logger.info(`Cloning repository ${from} to ${to} branch ${branch}`);
         if (!fs_1.default.existsSync(to)) {
             await (0, simple_git_1.default)().clone(this.remoteWithAuth(from), to, ["--quiet", "--shallow-submodules", "--no-tags", "--branch", branch]);
             return;
@@ -1600,6 +1600,7 @@ class Runner {
         await git.gitCli.clone(configs.originalPullRequest.targetRepo.cloneUrl, configs.folder, backportPR.base);
         // 5. create new branch from target one and checkout
         this.logger.debug("Creating local branch..");
+        this.logger.debug(`backportPR.head: ${backportPR.head}`);
         await git.gitCli.createLocalBranch(configs.folder, backportPR.head);
         // 6. fetch pull request remote if source owner != target owner or pull request still open
         if (configs.originalPullRequest.sourceRepo.owner !== configs.originalPullRequest.targetRepo.owner ||
@@ -1610,7 +1611,9 @@ class Runner {
         }
         // 7. apply all changes to the new branch
         this.logger.debug("Cherry picking commits..");
+        this.logger.debug(`Cherry picking commits.. ${originalPR.commits}`);
         for (const sha of originalPR.commits) {
+            this.logger.debug(`cherryPick function: ${configs.folder} ${sha}`);
             await git.gitCli.cherryPick(configs.folder, sha, configs.mergeStrategy, configs.mergeStrategyOption, configs.cherryPickOptions);
         }
         if (!configs.dryRun) {
