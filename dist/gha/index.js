@@ -553,6 +553,8 @@ class GitCLIService {
      */
     async cherryPick(cwd, sha, strategy = "recursive", strategyOption = "theirs", cherryPickOptions) {
         this.logger.info(`Cherry picking ${sha}`);
+        this.logger.debug(`git version ${this.git(cwd).raw("version")}`);
+        this.git(cwd).raw(["fetch", "origin"]);
         let options = ["cherry-pick", "-m", "1", `--strategy=${strategy}`, `--strategy-option=${strategyOption}`];
         if (cherryPickOptions !== undefined) {
             options = options.concat(cherryPickOptions.split(" "));
